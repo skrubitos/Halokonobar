@@ -44,7 +44,6 @@ export function showBrowserNotification(title: string, body: string) {
       body,
       icon: '/icon-192.png',
       tag: 'new-order',
-      renotify: true,
     });
   }
 }

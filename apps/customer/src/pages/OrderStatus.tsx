@@ -34,7 +34,7 @@ export function OrderStatus() {
   const queryClient = useQueryClient();
   const symbol = club?.settings.currencySymbol ?? '£';
 
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading } = useQuery<OrderDetailResponse>({
     queryKey: ['order', order_id],
     queryFn: () =>
       apiFetch<OrderDetailResponse>(
@@ -43,7 +43,10 @@ export function OrderStatus() {
         sessionToken ?? undefined
       ),
     enabled: !!order_id && !!sessionToken,
-    refetchInterval: order?.status === 'delivered' || order?.status === 'cancelled' ? false : 30_000,
+    refetchInterval: (query) => {
+      const s = query.state.data?.status;
+      return s === 'delivered' || s === 'cancelled' ? false : 30_000;
+    },
   });
 
   // Live status updates via WebSocket

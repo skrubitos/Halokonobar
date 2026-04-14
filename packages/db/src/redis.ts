@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 
 let redis: Redis | null = null;
 let subscriber: Redis | null = null;
@@ -12,7 +12,7 @@ function createClient(url: string, name: string): Redis {
     connectionName: name,
   });
 
-  client.on('error', (err) => {
+  client.on('error', (err: Error) => {
     console.error(`Redis [${name}] error:`, err);
   });
 

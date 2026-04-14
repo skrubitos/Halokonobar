@@ -2,7 +2,6 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import fp from 'fastify-plugin';
 import { config } from './config.js';
 import { errorHandler } from './errors.js';
 import authPlugin from './plugins/auth.js';
@@ -20,12 +19,9 @@ import { closePool } from '@halokonobar/db';
 import { closeRedis } from '@halokonobar/db';
 
 const fastify = Fastify({
-  logger: {
-    level: config.NODE_ENV === 'production' ? 'info' : 'debug',
-    transport: config.NODE_ENV !== 'production'
-      ? { target: 'pino-pretty', options: { colorize: true } }
-      : undefined,
-  },
+  logger: config.NODE_ENV !== 'production'
+    ? { level: 'debug', transport: { target: 'pino-pretty', options: { colorize: true } } }
+    : { level: 'info' },
   trustProxy: true,
   ajv: {
     customOptions: { allErrors: true, coerceTypes: false },
@@ -33,7 +29,8 @@ const fastify = Fastify({
 });
 
 // ─── Global error handler ──────────────────────────────────────────────────
-fastify.setErrorHandler(errorHandler);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+fastify.setErrorHandler(errorHandler as any);
 
 // ─── Security plugins ──────────────────────────────────────────────────────
 await fastify.register(helmet, {

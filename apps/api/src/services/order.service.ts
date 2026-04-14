@@ -72,7 +72,10 @@ export async function createOrder(
     throw new NotFoundError('MENU_ITEM_NOT_FOUND', 'One or more menu items not found');
   }
 
-  const menuItemMap = new Map(menuItems.map((m: { id: string }) => [m.id, m]));
+  type MenuItemRow = { id: string; name: string; price_pence: number; prep_time_mins: number; is_available: boolean };
+  const menuItemMap = new Map<string, MenuItemRow>(
+    (menuItems as MenuItemRow[]).map((m) => [m.id, m])
+  );
 
   for (const item of body.items) {
     const menuItem = menuItemMap.get(item.menuItemId);

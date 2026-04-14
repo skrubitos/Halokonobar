@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import websocket from '@fastify/websocket';
-import type { WebSocket } from 'ws';
+import type { WebSocket, RawData } from 'ws';
 import { getSubscriber } from '@halokonobar/db';
 import type { WsClientMessage } from '@halokonobar/types';
 import { verifySessionToken, verifyStaffToken } from './auth.js';
@@ -99,7 +99,7 @@ async function websocketPlugin(fastify: FastifyInstance) {
       }
     }, 30_000);
 
-    socket.on('message', async (rawData) => {
+    socket.on('message', async (rawData: RawData) => {
       let msg: WsClientMessage;
       try {
         msg = JSON.parse(rawData.toString()) as WsClientMessage;
@@ -162,7 +162,7 @@ async function websocketPlugin(fastify: FastifyInstance) {
       if (client) removeClient(client.clubId, client);
     });
 
-    socket.on('error', (err) => {
+    socket.on('error', (err: Error) => {
       console.error('WebSocket error:', err);
       clearInterval(pingInterval);
       if (client) removeClient(client.clubId, client);

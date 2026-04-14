@@ -139,9 +139,10 @@ export async function orderRoutes(fastify: FastifyInstance) {
       );
 
       const { randomUUID } = await import('node:crypto');
+      const origNotes = origOrder.notes as string | null;
       const body: CreateOrderBody = {
         idempotencyKey: randomUUID(),
-        notes: origOrder.notes as string | undefined,
+        ...(origNotes ? { notes: origNotes } : {}),
         items: origItems.map((i) => ({
           menuItemId: i.menu_item_id as string,
           quantity: i.quantity as number,
