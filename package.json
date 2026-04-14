@@ -1,0 +1,26 @@
+{
+  "name": "halokonobar",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Nightclub ordering system with NFC entry and real-time waiter tracking",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:migrate": "pnpm --filter @halokonobar/db migrate",
+    "db:seed": "pnpm --filter @halokonobar/db seed",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "turbo": "^1.13.3",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.1.4"
+}

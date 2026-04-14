@@ -1,0 +1,94 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hk_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: halokonobar
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hk_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: hk_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/halokonobar
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-production-minimum-32-chars
+      JWT_EXPIRES_IN: '28800'
+      CDN_BASE_URL: http://localhost:3000
+      CLOUDFLARE_ZONE_ID: ''
+      CLOUDFLARE_API_TOKEN: ''
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages:/app/packages
+
+  customer:
+    build:
+      context: .
+      dockerfile: apps/customer/Dockerfile
+    container_name: hk_customer
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_WS_URL: ws://localhost:3000
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./apps/customer/src:/app/apps/customer/src
+
+  waiter:
+    build:
+      context: .
+      dockerfile: apps/waiter/Dockerfile
+    container_name: hk_waiter
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_WS_URL: ws://localhost:3000
+    ports:
+      - '5174:5174'
+    volumes:
+      - ./apps/waiter/src:/app/apps/waiter/src
+
+volumes:
+  postgres_data:
+  redis_data:
