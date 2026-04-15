@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useI18n } from './i18n/context.js';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSessionStore } from './store/session.store.js';
 import { NfcLanding } from './pages/NfcLanding.js';
@@ -58,15 +59,42 @@ export function App() {
 }
 
 function NoSessionFallback() {
+  const { t, lang, setLang } = useI18n();
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <div className="text-6xl mb-6">📱</div>
-        <h1 className="text-white text-2xl font-bold mb-3">Scan to order</h1>
-        <p className="text-white/50 text-base">
-          Tap the NFC tag on your table, or scan the QR code to start ordering.
-        </p>
+        <h1 className="text-white text-2xl font-bold mb-3">{t.scanToOrder}</h1>
+        <p className="text-white/50 text-base mb-8">{t.scanToOrderSub}</p>
+        <LanguageSwitcher lang={lang} setLang={setLang} />
       </div>
     </div>
   );
 }
+
+function LanguageSwitcher({ lang, setLang }: { lang: string; setLang: (l: 'en' | 'hr') => void }) {
+  return (
+    <div className="flex items-center justify-center gap-2 mt-2">
+      <button
+        type="button"
+        onClick={() => setLang('en')}
+        className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+          lang === 'en' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/50 hover:text-white'
+        }`}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang('hr')}
+        className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+          lang === 'hr' ? 'bg-indigo-600 text-white' : 'bg-white/10 text-white/50 hover:text-white'
+        }`}
+      >
+        HR
+      </button>
+    </div>
+  );
+}
+
+export { LanguageSwitcher };

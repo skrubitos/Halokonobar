@@ -109,7 +109,7 @@ export interface StaffLoginBody {
 export interface StaffLoginResponse {
   accessToken: string;
   expiresIn: number;
-  staff: Omit<Staff, 'clubId'>;
+  staff: Staff;
 }
 
 // ─── Waiter Dashboard ────────────────────────────────────────────────────
@@ -191,6 +191,22 @@ export interface CreateNfcTagBody {
   zoneId: string;
   tagUid: string;
   tagLabel: string;
+}
+
+export interface TableStatus {
+  id: string;
+  tagLabel: string;
+  zoneId: string;
+  zoneName: string;
+  zoneType: Zone['zoneType'];
+  activeOrderCount: number;
+  worstStatus: OrderStatus | null; // null = free / no active orders
+  hasPending: boolean;
+  hasDelayed: boolean;
+}
+
+export interface StaffTablesResponse {
+  tables: TableStatus[];
 }
 
 export interface UploadImageResponse {

@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { webcrypto } from 'node:crypto';
 import { getPool } from '@halokonobar/db';
 import { getRedis } from '@halokonobar/db';
 import type { NfcTapResponse } from '@halokonobar/types';
@@ -59,7 +59,7 @@ export async function handleNfcTap(opts: TapOptions): Promise<NfcTapResponse> {
   }
 
   // 4. Create new session
-  const sessionToken = crypto.randomBytes(32).toString('hex');
+  const sessionToken = Array.from(webcrypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
   const expiresAt = new Date(Date.now() + SESSION_TTL_HOURS * 3600 * 1000).toISOString();
 
   // Determine priority from zone type

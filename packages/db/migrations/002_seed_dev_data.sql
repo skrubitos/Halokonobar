@@ -19,14 +19,15 @@ INSERT INTO clubs (id, name, slug, timezone, settings) VALUES (
     "delayAlertPendingMinutes": 3,
     "delayAlertPreparingMinutes": 15
   }'
-);
+) ON CONFLICT (id) DO NOTHING;
 
 -- Zones
 INSERT INTO zones (id, club_id, name, zone_type, sort_order) VALUES
   ('00000000-0000-0000-0001-000000000001', '00000000-0000-0000-0000-000000000001', 'Main Floor', 'standard', 1),
   ('00000000-0000-0000-0001-000000000002', '00000000-0000-0000-0000-000000000001', 'VIP Booth 1', 'vip', 2),
   ('00000000-0000-0000-0001-000000000003', '00000000-0000-0000-0000-000000000001', 'Terrace', 'terrace', 3),
-  ('00000000-0000-0000-0001-000000000004', '00000000-0000-0000-0000-000000000001', 'Bar Area', 'bar', 4);
+  ('00000000-0000-0000-0001-000000000004', '00000000-0000-0000-0000-000000000001', 'Bar Area', 'bar', 4)
+ON CONFLICT (id) DO NOTHING;
 
 -- NFC Tags
 INSERT INTO nfc_tags (id, club_id, zone_id, tag_uid, tag_label) VALUES
@@ -34,7 +35,8 @@ INSERT INTO nfc_tags (id, club_id, zone_id, tag_uid, tag_label) VALUES
   ('00000000-0000-0000-0002-000000000002', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000001', 'TESTUID0002', 'Table 2'),
   ('00000000-0000-0000-0002-000000000003', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000001', 'TESTUID0003', 'Table 3'),
   ('00000000-0000-0000-0002-000000000004', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000002', 'TESTUID0004', 'Booth 1'),
-  ('00000000-0000-0000-0002-000000000005', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000003', 'TESTUID0005', 'Terrace 1');
+  ('00000000-0000-0000-0002-000000000005', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000003', 'TESTUID0005', 'Terrace 1')
+ON CONFLICT (id) DO NOTHING;
 
 -- Staff (password: "password123" bcrypt hash)
 INSERT INTO staff (id, club_id, email, password_hash, display_name, role) VALUES
@@ -42,7 +44,7 @@ INSERT INTO staff (id, club_id, email, password_hash, display_name, role) VALUES
     '00000000-0000-0000-0003-000000000001',
     '00000000-0000-0000-0000-000000000001',
     'waiter@demo.com',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4oOFrFUZoi',
+    '$2b$12$Q4PrC9OmVPDXCbLbccNkd.iVGWLEtznya7IxTGg1TbkINE3.wvCqa',
     'Alex (Waiter)',
     'waiter'
   ),
@@ -50,17 +52,19 @@ INSERT INTO staff (id, club_id, email, password_hash, display_name, role) VALUES
     '00000000-0000-0000-0003-000000000002',
     '00000000-0000-0000-0000-000000000001',
     'manager@demo.com',
-    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4oOFrFUZoi',
+    '$2b$12$Q4PrC9OmVPDXCbLbccNkd.iVGWLEtznya7IxTGg1TbkINE3.wvCqa',
     'Sam (Manager)',
     'manager'
-  );
+  )
+ON CONFLICT (id) DO NOTHING;
 
 -- Menu Categories
 INSERT INTO menu_categories (id, club_id, name, emoji, sort_order) VALUES
   ('00000000-0000-0000-0004-000000000001', '00000000-0000-0000-0000-000000000001', 'Cocktails', '🍸', 1),
   ('00000000-0000-0000-0004-000000000002', '00000000-0000-0000-0000-000000000001', 'Spirits', '🥃', 2),
   ('00000000-0000-0000-0004-000000000003', '00000000-0000-0000-0000-000000000001', 'Bottles', '🍾', 3),
-  ('00000000-0000-0000-0004-000000000004', '00000000-0000-0000-0000-000000000001', 'Soft Drinks', '🥤', 4);
+  ('00000000-0000-0000-0004-000000000004', '00000000-0000-0000-0000-000000000001', 'Soft Drinks', '🥤', 4)
+ON CONFLICT (id) DO NOTHING;
 
 -- Menu Items
 INSERT INTO menu_items (id, club_id, category_id, name, description, price_pence, is_featured, modifiers, prep_time_mins) VALUES
@@ -177,4 +181,5 @@ INSERT INTO menu_items (id, club_id, category_id, name, description, price_pence
     false,
     '[]',
     1
-  );
+  )
+ON CONFLICT (id) DO NOTHING;

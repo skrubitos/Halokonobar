@@ -57,6 +57,7 @@ export async function staffAuthRoutes(fastify: FastifyInstance) {
           expiresIn: 28800,
           staff: {
             id: staff.id,
+            clubId: staff.club_id,
             email: staff.email,
             displayName: staff.display_name,
             role: staff.role,

@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useSessionStore } from '../store/session.store.js';
 import { useCartStore } from '../store/cart.store.js';
 import { apiFetch, formatPrice } from '../utils/api.js';
+import { useI18n } from '../i18n/context.js';
+import { LanguageSwitcher } from '../App.js';
 import { Spinner } from '@halokonobar/ui';
 import type { MenuCategoryWithItems, MenuItem } from '@halokonobar/types';
 
@@ -11,6 +13,7 @@ export function Menu() {
   const navigate = useNavigate();
   const { sessionToken, club, zone, tag } = useSessionStore();
   const { addItem, itemCount, totalPence } = useCartStore();
+  const { t, lang, setLang } = useI18n();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [addedItems, setAddedItems] = useState<Set<string>>(new Set());
 
@@ -50,12 +53,13 @@ export function Menu() {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-white/60 mb-4">Could not load menu</p>
+          <p className="text-white/60 mb-4">{t.couldNotLoadMenu}</p>
           <button
+            type="button"
             onClick={() => window.location.reload()}
             className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold"
           >
-            Retry
+            {t.retry}
           </button>
         </div>
       </div>
@@ -73,16 +77,20 @@ export function Menu() {
               <p className="text-white/50 text-sm">
                 {tag?.tagLabel} · {zone?.name}
                 {zone?.zoneType === 'vip' && (
-                  <span className="ml-2 text-purple-400 text-xs font-bold">VIP</span>
+                  <span className="ml-2 text-purple-400 text-xs font-bold">{t.vip}</span>
                 )}
               </p>
             </div>
-            <button
-              onClick={() => navigate('/orders')}
-              className="text-white/50 text-sm"
-            >
-              Orders
-            </button>
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher lang={lang} setLang={setLang} />
+              <button
+                type="button"
+                onClick={() => navigate('/orders')}
+                className="text-white/50 text-sm"
+              >
+                {t.orders}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -91,6 +99,7 @@ export function Menu() {
           {categories.map((cat) => (
             <button
               key={cat.id}
+              type="button"
               onClick={() => setActiveCategory(cat.id)}
               className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                 cat.id === displayCategory
@@ -119,17 +128,18 @@ export function Menu() {
         </div>
       </main>
 
-      {/* Cart bar — visible when cart has items */}
+      {/* Cart bar */}
       {itemCount() > 0 && (
         <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe-bottom bg-gradient-to-t from-gray-950 to-transparent">
           <button
+            type="button"
             onClick={() => navigate('/cart')}
             className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl text-lg flex items-center justify-between px-6 shadow-xl"
           >
             <span className="bg-indigo-500 text-white text-sm font-bold px-2.5 py-1 rounded-full min-w-[28px] text-center">
               {itemCount()}
             </span>
-            <span>View order</span>
+            <span>{t.viewOrder}</span>
             <span>{formatPrice(totalPence(), club?.settings.currencySymbol)}</span>
           </button>
         </div>
@@ -181,6 +191,7 @@ function MenuItemCard({
           </span>
 
           <button
+            type="button"
             onClick={onAdd}
             disabled={!item.isAvailable}
             className={`min-w-[44px] min-h-[44px] rounded-xl font-bold text-xl transition-all ${

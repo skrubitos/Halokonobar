@@ -1,0 +1,2 @@
+manager@demo.com / password123
+waiter@demo.com / password123

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useSessionStore } from '../store/session.store.js';
 import { apiFetch, formatPrice } from '../utils/api.js';
+import { useI18n } from '../i18n/context.js';
 import { StatusBadge } from '@halokonobar/ui';
 import type { ListOrdersResponse } from '@halokonobar/types';
 
 export function OrderHistory() {
   const navigate = useNavigate();
   const { sessionToken, club } = useSessionStore();
+  const { t } = useI18n();
   const symbol = club?.settings.currencySymbol ?? '£';
 
   const { data, isLoading } = useQuery({
@@ -38,25 +40,26 @@ export function OrderHistory() {
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       <header className="sticky top-0 z-10 bg-gray-950/95 backdrop-blur border-b border-white/10 px-4 py-4 pt-safe-top">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/menu')} className="text-white/60 text-2xl">←</button>
-          <h1 className="text-xl font-bold">Your orders</h1>
+          <button type="button" onClick={() => navigate('/menu')} className="text-white/60 text-2xl">←</button>
+          <h1 className="text-xl font-bold">{t.yourOrders}</h1>
         </div>
       </header>
 
       <main className="flex-1 px-4 py-4">
         {isLoading && (
-          <div className="text-center py-16 text-white/40">Loading...</div>
+          <div className="text-center py-16 text-white/40">{t.loading}</div>
         )}
 
         {!isLoading && orders.length === 0 && (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">📋</div>
-            <p className="text-white/60">No orders yet</p>
+            <p className="text-white/60">{t.noOrdersYet}</p>
             <button
+              type="button"
               onClick={() => navigate('/menu')}
               className="mt-6 text-indigo-400 font-semibold"
             >
-              Order something
+              {t.orderSomething}
             </button>
           </div>
         )}
@@ -85,7 +88,7 @@ export function OrderHistory() {
                 </div>
                 <p className="text-white/40 text-sm">
                   {order.items?.slice(0, 2).map((i) => `${i.quantity}× ${i.nameSnapshot}`).join(', ')}
-                  {(order.items?.length ?? 0) > 2 && ` +${(order.items?.length ?? 0) - 2} more`}
+                  {(order.items?.length ?? 0) > 2 && ` +${(order.items?.length ?? 0) - 2} ${t.more}`}
                 </p>
                 <p className="text-white/30 text-xs mt-1">
                   {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -95,11 +98,12 @@ export function OrderHistory() {
               {order.status === 'delivered' && (
                 <div className="px-4 pb-4">
                   <button
+                    type="button"
                     onClick={() => reorderMutation.mutate(order.id)}
                     disabled={reorderMutation.isPending}
                     className="w-full bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold py-3 rounded-xl text-sm"
                   >
-                    {reorderMutation.isPending ? 'Ordering...' : 'Reorder the same'}
+                    {reorderMutation.isPending ? t.ordering : t.reorderTheSame}
                   </button>
                 </div>
               )}

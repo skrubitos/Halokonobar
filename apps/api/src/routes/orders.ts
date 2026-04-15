@@ -7,6 +7,7 @@ import {
 } from '../services/order.service.js';
 import { NotFoundError, AppError } from '../errors.js';
 import type { CreateOrderBody } from '@halokonobar/types';
+import { mapOrderWithItems, mapOrderStatusHistory } from '../utils/mappers.js';
 
 export async function orderRoutes(fastify: FastifyInstance) {
   // POST /api/v1/orders — create order
@@ -82,11 +83,9 @@ export async function orderRoutes(fastify: FastifyInstance) {
 
       return reply.send({
         data: {
-          orders: rows.map((r) => ({
-            ...r,
-            zone: { id: r.zone_id, name: r.zone_name, zoneType: r.zone_type },
-            tag: { id: r.nfc_tag_id, tagLabel: r.tag_label },
-          })),
+          orders: rows.map((r) =>
+            mapOrderWithItems(r as Record<string, unknown>, r.items as Record<string, unknown>[] ?? [])
+          ),
         },
         error: null,
       });
@@ -115,7 +114,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
         [req.params.order_id]
       );
 
-      return reply.send({ data: { ...order, statusHistory: history }, error: null });
+      return reply.send({ data: { ...order, statusHistory: history.map((h) => mapOrderStatusHistory(h as Record<string, unknown>)) }, error: null });
     }
   );
 

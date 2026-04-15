@@ -7,6 +7,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file if it exists
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SEED_FILE = path.join(__dirname, '..', 'migrations', '002_seed_dev_data.sql');

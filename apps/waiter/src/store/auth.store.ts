@@ -4,9 +4,9 @@ import type { Staff } from '@halokonobar/types';
 
 interface AuthState {
   accessToken: string | null;
-  staff: Omit<Staff, 'clubId'> | null;
+  staff: Staff | null;
 
-  setAuth: (token: string, staff: Omit<Staff, 'clubId'>) => void;
+  setAuth: (token: string, staff: Staff) => void;
   clearAuth: () => void;
   isAuthenticated: () => boolean;
 }

@@ -3,6 +3,7 @@ import { getPool } from '@halokonobar/db';
 import { transitionOrderStatus, assignOrder, getOrderById } from '../../services/order.service.js';
 import { NotFoundError } from '../../errors.js';
 import type { OrderStatus } from '@halokonobar/types';
+import { mapOrderWithItems, mapZone, mapDashboardSummary } from '../../utils/mappers.js';
 
 export async function staffOrderRoutes(fastify: FastifyInstance) {
   // GET /api/v1/staff/orders
@@ -72,11 +73,9 @@ export async function staffOrderRoutes(fastify: FastifyInstance) {
 
       return reply.send({
         data: {
-          orders: rows.map((r) => ({
-            ...r,
-            zone: { id: r.zone_id, name: r.zone_name, zoneType: r.zone_type },
-            tag: { id: r.nfc_tag_id, tagLabel: r.tag_label },
-          })),
+          orders: rows.map((r) =>
+            mapOrderWithItems(r as Record<string, unknown>, r.items as Record<string, unknown>[] ?? [])
+          ),
         },
         error: null,
       });
@@ -189,7 +188,80 @@ export async function staffOrderRoutes(fastify: FastifyInstance) {
          ORDER BY z.sort_order ASC`,
         [req.staffUser!.clubId]
       );
-      return reply.send({ data: { zones: rows }, error: null });
+      return reply.send({ data: { zones: rows.map((r) => mapZone(r as Record<string, unknown>)) }, error: null });
+    }
+  );
+
+  // GET /api/v1/staff/tables
+  fastify.get(
+    '/staff/tables',
+    { preHandler: [fastify.authenticateStaff] },
+    async (req, reply) => {
+      const pool = getPool();
+      const { clubId, assignedZones } = req.staffUser!;
+
+      const values: unknown[] = [clubId];
+      let idx = 2;
+      const extraConditions: string[] = [];
+
+      if (assignedZones.length > 0) {
+        extraConditions.push(`t.zone_id = ANY($${idx++}::uuid[])`);
+        values.push(assignedZones);
+      }
+
+      const whereExtra = extraConditions.length > 0
+        ? `AND ${extraConditions.join(' AND ')}`
+        : '';
+
+      const { rows } = await pool.query(
+        `SELECT
+           t.id,
+           t.tag_label,
+           t.zone_id,
+           z.name        AS zone_name,
+           z.zone_type,
+           z.sort_order  AS zone_sort_order,
+           COUNT(o.id) FILTER (WHERE o.status NOT IN ('delivered','cancelled'))          AS active_order_count,
+           BOOL_OR(o.status = 'pending')
+             FILTER (WHERE o.status NOT IN ('delivered','cancelled'))                    AS has_pending,
+           MIN(CASE o.status
+                 WHEN 'pending'   THEN 1
+                 WHEN 'accepted'  THEN 2
+                 WHEN 'preparing' THEN 3
+                 WHEN 'ready'     THEN 4
+                 ELSE NULL END)
+             FILTER (WHERE o.status NOT IN ('delivered','cancelled'))                    AS worst_status_rank,
+           BOOL_OR(
+             EXTRACT(EPOCH FROM (now() - o.created_at)) > 300
+             AND o.status NOT IN ('ready','delivered','cancelled')
+           ) FILTER (WHERE o.status NOT IN ('delivered','cancelled'))                    AS has_delayed
+         FROM nfc_tags t
+         JOIN zones z ON z.id = t.zone_id
+         LEFT JOIN orders o ON o.nfc_tag_id = t.id AND o.club_id = $1
+         WHERE t.club_id = $1 AND t.is_active = true ${whereExtra}
+         GROUP BY t.id, t.tag_label, t.zone_id, z.name, z.zone_type, z.sort_order
+         ORDER BY z.sort_order ASC, t.tag_label ASC`,
+        values
+      );
+
+      const rankToStatus = (rank: number | null): string | null => {
+        if (rank === null) return null;
+        return ['pending', 'accepted', 'preparing', 'ready'][rank - 1] ?? null;
+      };
+
+      const tables = rows.map((r) => ({
+        id: r.id as string,
+        tagLabel: r.tag_label as string,
+        zoneId: r.zone_id as string,
+        zoneName: r.zone_name as string,
+        zoneType: r.zone_type as string,
+        activeOrderCount: Number(r.active_order_count ?? 0),
+        worstStatus: rankToStatus(r.worst_status_rank != null ? Number(r.worst_status_rank) : null),
+        hasPending: Boolean(r.has_pending),
+        hasDelayed: Boolean(r.has_delayed),
+      }));
+
+      return reply.send({ data: { tables }, error: null });
     }
   );
 
@@ -216,7 +288,7 @@ export async function staffOrderRoutes(fastify: FastifyInstance) {
         [req.staffUser!.clubId]
       );
 
-      return reply.send({ data: summary, error: null });
+      return reply.send({ data: mapDashboardSummary(summary as Record<string, unknown>), error: null });
     }
   );
 }

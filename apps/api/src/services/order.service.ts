@@ -13,6 +13,7 @@ import {
   InvalidTransitionError,
   ValidationError,
 } from '../errors.js';
+import { mapOrder, mapOrderItem, mapOrderWithItems } from '../utils/mappers.js';
 import {
   publishOrderCreated,
   publishOrderStatusChanged,
@@ -204,7 +205,7 @@ export async function createOrder(
       orderNumber: order.order_number as string,
       status: 'pending',
       estimatedReadyAt,
-      items: insertedItems as unknown as CreateOrderResponse['items'],
+      items: insertedItems.map((i) => mapOrderItem(i)) as CreateOrderResponse['items'],
       subtotalPence,
       totalPence,
     };
@@ -357,11 +358,8 @@ export async function getOrderById(orderId: string, clubId: string): Promise<Ord
     [orderId]
   );
 
-  return {
-    ...order,
-    zone: { id: order.zone_id, name: order.zone_name, zoneType: order.zone_type },
-    tag: { id: order.nfc_tag_id, tagLabel: order.tag_label },
-    items,
-    waitingSeconds: order.waiting_seconds,
-  } as unknown as OrderWithItems;
+  return mapOrderWithItems(
+    order as Record<string, unknown>,
+    items as Record<string, unknown>[]
+  ) as unknown as OrderWithItems;
 }

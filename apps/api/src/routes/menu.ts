@@ -27,16 +27,40 @@ export async function menuRoutes(fastify: FastifyInstance) {
         [req.params.club_id, categories.map((c: { id: string }) => c.id)]
       );
 
-      const itemsByCategory = new Map<string, typeof items>();
+      const mapItem = (item: Record<string, unknown>) => ({
+        id: item['id'],
+        clubId: item['club_id'],
+        categoryId: item['category_id'],
+        name: item['name'],
+        description: item['description'],
+        pricePence: item['price_pence'],
+        imageUrl: item['image_url'],
+        isAvailable: item['is_available'],
+        isFeatured: item['is_featured'],
+        modifiers: item['modifiers'] ?? [],
+        sortOrder: item['sort_order'],
+        prepTimeMins: item['prep_time_mins'],
+      });
+
+      const mapCategory = (c: Record<string, unknown>) => ({
+        id: c['id'],
+        clubId: c['club_id'],
+        name: c['name'],
+        emoji: c['emoji'],
+        sortOrder: c['sort_order'],
+        isActive: c['is_active'] ?? true,
+      });
+
+      const itemsByCategory = new Map<string, ReturnType<typeof mapItem>[]>();
       for (const item of items) {
-        const cat = item.category_id as string;
+        const cat = item['category_id'] as string;
         if (!itemsByCategory.has(cat)) itemsByCategory.set(cat, []);
-        itemsByCategory.get(cat)!.push(item);
+        itemsByCategory.get(cat)!.push(mapItem(item));
       }
 
-      const categoriesWithItems = categories.map((c: { id: string }) => ({
-        ...c,
-        items: itemsByCategory.get(c.id) ?? [],
+      const categoriesWithItems = categories.map((c: Record<string, unknown>) => ({
+        ...mapCategory(c),
+        items: itemsByCategory.get(c['id'] as string) ?? [],
       }));
 
       // CDN-friendly caching: 60s fresh, 300s stale-while-revalidate

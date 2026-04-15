@@ -82,6 +82,20 @@ export async function adminMenuRoutes(fastify: FastifyInstance) {
     }
   );
 
+  // GET /api/v1/admin/clubs/:club_id/menu/items
+  fastify.get<{ Params: { club_id: string } }>(
+    '/admin/clubs/:club_id/menu/items',
+    { preHandler: managerGuard },
+    async (req, reply) => {
+      const pool = getPool();
+      const { rows } = await pool.query(
+        `SELECT * FROM menu_items WHERE club_id = $1 ORDER BY sort_order ASC, name ASC`,
+        [req.params.club_id]
+      );
+      return reply.send({ data: { items: rows }, error: null });
+    }
+  );
+
   // POST /api/v1/admin/clubs/:club_id/menu/items
   fastify.post<{
     Params: { club_id: string };

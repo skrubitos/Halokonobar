@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth.store.js';
+import { useI18n } from '../i18n/context.js';
 import { apiFetch, formatPrice } from '../utils/api.js';
 import type { DashboardSummaryResponse } from '@halokonobar/types';
 
@@ -16,6 +17,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 
 export function Dashboard() {
   const { accessToken } = useAuthStore();
+  const { t } = useI18n();
 
   const { data } = useQuery({
     queryKey: ['dashboard'],
@@ -32,7 +34,7 @@ export function Dashboard() {
   if (!data) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-white/40">Loading...</div>
+        <div className="text-white/40">{t.loading}</div>
       </div>
     );
   }
@@ -42,26 +44,26 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="px-4 py-6 pt-safe-top border-b border-white/10">
-        <h1 className="text-2xl font-bold">Tonight's summary</h1>
+        <h1 className="text-2xl font-bold">{t.tonightSummary}</h1>
       </header>
 
       <main className="px-4 py-4 grid grid-cols-2 gap-3">
         <Stat
-          label="Active orders"
+          label={t.activeOrders}
           value={String(data.activeOrdersCount)}
-          sub={`${data.pendingOrdersCount} pending`}
+          sub={`${data.pendingOrdersCount} ${t.pending}`}
         />
         <Stat
-          label="Avg wait"
+          label={t.avgWait}
           value={`${avgWaitMins}m`}
-          sub="to delivery"
+          sub={t.toDelivery}
         />
         <Stat
-          label="Orders (1h)"
+          label={t.ordersLastHour}
           value={String(data.ordersLastHour)}
         />
         <Stat
-          label="Revenue today"
+          label={t.revenueToday}
           value={formatPrice(data.revenueTodayPence)}
         />
       </main>
