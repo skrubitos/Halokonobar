@@ -464,7 +464,7 @@ export function OrderFeed() {
         accessToken ?? undefined
       ),
     enabled: !!accessToken,
-    refetchInterval: wsConnected ? false : 15_000,
+    refetchInterval: wsConnected ? 30_000 : 10_000,
   });
 
   const { data: tablesData, isLoading: tablesLoading } = useQuery({
@@ -472,7 +472,7 @@ export function OrderFeed() {
     queryFn: () =>
       apiFetch<StaffTablesResponse>('/api/v1/staff/tables', {}, accessToken ?? undefined),
     enabled: !!accessToken,
-    refetchInterval: wsConnected ? false : 15_000,
+    refetchInterval: wsConnected ? 30_000 : 10_000,
   });
 
   // ── Mutations ─────────────────────────────────────────────────────────────
@@ -485,6 +485,11 @@ export function OrderFeed() {
         accessToken ?? undefined
       ),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-tables'] });
+    },
+    onError: () => {
+      // Order may have been auto-cancelled or changed by another staff member — refetch
       queryClient.invalidateQueries({ queryKey: ['staff-orders'] });
       queryClient.invalidateQueries({ queryKey: ['staff-tables'] });
     },
@@ -504,6 +509,10 @@ export function OrderFeed() {
       );
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['staff-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-tables'] });
+    },
+    onError: () => {
       queryClient.invalidateQueries({ queryKey: ['staff-orders'] });
       queryClient.invalidateQueries({ queryKey: ['staff-tables'] });
     },
