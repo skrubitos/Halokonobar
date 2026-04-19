@@ -273,11 +273,12 @@ export async function transitionOrderStatus(
     }
 
     const setClauses = [`status = $1`, ...tsUpdates].join(', ');
+    const whereParam = paramIdx++;
     const { rows: [updated] } = await client.query(
       `UPDATE orders SET ${setClauses}, updated_at = now()
-       WHERE id = '${orderId}'
+       WHERE id = $${whereParam}
        RETURNING *`,
-      [toStatus, ...tsValues]
+      [toStatus, ...tsValues, orderId]
     );
 
     await client.query(

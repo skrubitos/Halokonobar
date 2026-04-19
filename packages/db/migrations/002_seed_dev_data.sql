@@ -55,6 +55,14 @@ INSERT INTO staff (id, club_id, email, password_hash, display_name, role) VALUES
     '$2b$12$Q4PrC9OmVPDXCbLbccNkd.iVGWLEtznya7IxTGg1TbkINE3.wvCqa',
     'Sam (Manager)',
     'manager'
+  ),
+  (
+    '00000000-0000-0000-0003-000000000003',
+    '00000000-0000-0000-0000-000000000001',
+    'admin@demo.com',
+    '$2b$12$Q4PrC9OmVPDXCbLbccNkd.iVGWLEtznya7IxTGg1TbkINE3.wvCqa',
+    'Josip (Admin)',
+    'admin'
   )
 ON CONFLICT (id) DO NOTHING;
 

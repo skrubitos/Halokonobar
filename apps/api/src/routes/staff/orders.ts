@@ -19,7 +19,7 @@ export async function staffOrderRoutes(fastify: FastifyInstance) {
     { preHandler: [fastify.authenticateStaff] },
     async (req, reply) => {
       const pool = getPool();
-      const { clubId, assignedZones } = req.staffUser!;
+      const { clubId, assignedZones, role } = req.staffUser!;
       const { status, zone_id, since, limit } = req.query;
 
       const values: unknown[] = [clubId];
@@ -41,6 +41,9 @@ export async function staffOrderRoutes(fastify: FastifyInstance) {
         // Staff restricted to their zones
         conditions.push(`o.zone_id = ANY($${idx++}::uuid[])`);
         values.push(assignedZones);
+      } else if (role === 'waiter') {
+        // Waiters without assigned zones should see no orders
+        conditions.push('FALSE');
       }
 
       if (since) {

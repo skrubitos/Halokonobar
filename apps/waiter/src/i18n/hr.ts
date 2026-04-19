@@ -86,11 +86,40 @@ export const hr = {
   lastScan: 'Zadnje skeniranje',
   never: 'Nikad',
 
+  // Staff admin
+  staffAdmin: 'Osoblje',
+  addStaff: '+ Dodaj osoblje',
+  newStaff: 'Novi član osoblja',
+  editStaff: 'Uredi osoblje',
+  staffName: 'Ime',
+  staffNamePlaceholder: 'npr. Ivan Horvat',
+  staffEmail: 'E-mail',
+  staffEmailPlaceholder: 'npr. ivan@klub.com',
+  staffPassword: 'Lozinka',
+  staffPasswordPlaceholder: 'Min. 8 znakova',
+  staffNewPassword: 'Nova lozinka (neobavezno)',
+  staffRole: 'Uloga',
+  roleWaiter: 'Konobar',
+  roleManager: 'Menadžer',
+  roleAdmin: 'Admin',
+  staffZones: 'Dodijeljene zone',
+  staffZonesAll: 'Sve zone',
+  staffActive: 'Aktivan',
+  staffInactive: 'Neaktivan',
+  noStaff: 'Nema registriranog osoblja',
+  emailRequired: 'E-mail je obavezan',
+  passwordRequired: 'Lozinka je obavezna',
+  staffDeactivate: 'Deaktiviraj',
+  staffActivate: 'Aktiviraj',
+  staffLastLogin: 'Zadnja prijava',
+  confirmDeactivate: 'Sigurno želite deaktivirati ovog korisnika?',
+
   // Tabs
   tabOrders: 'Narudžbe',
   tabSummary: 'Pregled',
   tabMenu: 'Meni',
   tabTables: 'Stolovi',
+  tabStaff: 'Osoblje',
 } as const;
 
 export type WaiterTranslationKeys = Record<keyof typeof hr, string>;

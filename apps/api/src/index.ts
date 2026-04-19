@@ -14,6 +14,7 @@ import { staffAuthRoutes } from './routes/staff/auth.js';
 import { staffOrderRoutes } from './routes/staff/orders.js';
 import { adminMenuRoutes } from './routes/admin/menu.js';
 import { adminNfcTagRoutes } from './routes/admin/nfc-tags.js';
+import { adminStaffRoutes } from './routes/admin/staff.js';
 import { startDelayMonitor, stopDelayMonitor } from './services/delay-monitor.js';
 import { closePool } from '@halokonobar/db';
 import { closeRedis } from '@halokonobar/db';
@@ -73,6 +74,7 @@ await fastify.register(
     await api.register(staffOrderRoutes);
     await api.register(adminMenuRoutes);
     await api.register(adminNfcTagRoutes);
+    await api.register(adminStaffRoutes);
   },
   { prefix: '/api/v1' }
 );

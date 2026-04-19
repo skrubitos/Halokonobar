@@ -8,6 +8,7 @@ import { OrderFeed } from './pages/OrderFeed.js';
 import { Dashboard } from './pages/Dashboard.js';
 import { MenuAdmin } from './pages/MenuAdmin.js';
 import { TablesAdmin } from './pages/TablesAdmin.js';
+import { StaffAdmin } from './pages/StaffAdmin.js';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 10_000 } },
@@ -52,12 +53,14 @@ function TabBar() {
   const { staff } = useAuthStore();
   const { t } = useI18n();
   const isManager = staff?.role === 'manager' || staff?.role === 'admin';
+  const isAdmin = staff?.role === 'admin';
 
   const tabs = [
     { path: '/orders', icon: '📋', label: t.tabOrders },
     { path: '/dashboard', icon: '📊', label: t.tabSummary },
     ...(isManager ? [{ path: '/menu-admin', icon: '🍸', label: t.tabMenu }] : []),
     ...(isManager ? [{ path: '/tables-admin', icon: '🪑', label: t.tabTables }] : []),
+    ...(isAdmin ? [{ path: '/staff-admin', icon: '👥', label: t.tabStaff }] : []),
   ];
 
   return (
@@ -123,6 +126,14 @@ export function App() {
             element={
               <RequireAuth>
                 <AuthenticatedLayout><TablesAdmin /></AuthenticatedLayout>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/staff-admin"
+            element={
+              <RequireAuth>
+                <AuthenticatedLayout><StaffAdmin /></AuthenticatedLayout>
               </RequireAuth>
             }
           />
