@@ -23,14 +23,14 @@ pnpm dev                               # start all 3 apps
 
 ## Key conventions
 
-- All DB tables scoped by `club_id` (multi-tenant)
-- Customer auth: session tokens (64-char hex), stored in Redis + PG
-- Staff auth: JWT with role-based access (waiter/manager/admin)
-- Real-time: WebSocket via Redis pub/sub per club
-- Prices stored as integers (pence) — never use floats for money
-- i18n: English + Croatian (`apps/*/src/i18n/`)
-- Order flow: pending → accepted → preparing → ready → delivered | cancelled
-- SQL queries must use parameterized values ($1, $2, ...) — never string interpolation
+## Key conventions
+
+- **Multi-tenancy**: Mandatory `club_id` on ALL queries. No exceptions.
+- **Money**: Always `pence` (integer). `formatPrice` utility must be used for UI display.
+- **Error Format**: Standardized `{ data, error }` wrapper for all API responses.
+- **Type Safety**: Avoid `as any`. Use Zod for validation and infer types from schemas.
+- **Logging**: Use `pino` (once implemented) with `club_id` and `request_id` in context.
+- **State**: Zustand for UI state, TanStack Query for server cache (use `useQuery` keys properly).
 
 ## Ports (dev)
 
